@@ -1,0 +1,136 @@
+import React, { Component } from 'react';
+import { View, Text, SectionList, StyleSheet, Dimensions } from 'react-native';
+import {} from '../actions/AppActions';
+import { connect } from 'react-redux';
+
+import MapView from 'react-native-maps';
+
+const { width, height } = Dimensions.get('window');
+const SCREEN_HEIGHT = height;
+const SCREEN_WIDTH = width;
+const ASPEC_RADIO = width/height;
+const LATITUDE_DELTA = 0.0922
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPEC_RADIO;
+
+export default class DetalheChamado extends Component{
+    constructor(props) {
+        super(props)
+        this.state = {
+            posicaoInicial: {
+                latitude:0,
+                longitude:0,
+                longitudeDelta:0,
+                latitudeDelta:0
+            },
+            markerPosition: {
+                latitude:0,
+                longitude:0
+            }
+        }
+    }
+    watchID: ?number = null;
+
+    componentDidMount() {
+        navigator.geolocation.getCurrentPosition((position) => {
+            var lat = parseFloat(position.coords.latitude)
+            var long = parseFloat(position.coords.longitude)
+
+            var regiaoInicial = {
+                latitude: lat,
+                longitude: long,
+                latitudeDelta: LATITUDE_DELTA,
+                longitudeDelta: LONGITUDE_DELTA
+            }
+
+            this.setState({posicaoInicial: regiaoInicial})
+            this.setState({markerPosition: regiaoInicial})
+        }, 
+        (error) => alert(JSON.stringify(error)),
+        {enableHighAccuracy: true, timeout: 20000, maximumAge: 100})
+        this.watchID = navigator.geolocation.watchPosition((position) => {
+            var lat = parseFloat(position.coords.latitude)
+            var long = parseFloat(position.coords.longitude)
+
+            var lastRegion = {
+                latitude: lat,
+                longitude: long,
+                longitudeDelta: LONGITUDE_DELTA,
+                latitudeDelta: LATITUDE_DELTA
+            }
+            this.setState({posicaoInicial: lastRegion})
+            this.setState({markerPosition: lastRegion})
+        })
+    }
+
+    componentWillUnmount() {
+        navigator.geolocation.clearWatch(this.watchID)
+    }
+
+    render() {
+        return (
+            <View style={styles.container}>
+                {/* <View>
+                    <Text>{this.props.clienteNome}</Text>
+                    <Text>{this.props.prioridade}</Text>
+                    <Text>{this.props.status}</Text>             
+                </View> */}
+                
+                <MapView style={styles.map}
+                    region={this.state.posicaoInicial}                    
+                >
+                    <MapView.Marker coordinate={this.state.markerPosition}>
+                        <View style={styles.radius}>
+                            <View style={styles.marker}>
+                            </View>
+                        </View>
+                        
+                    </MapView.Marker>                    
+                    
+                    <MapView.Marker coordinate={{
+                            latitude: 2.8126982,
+                            longitude:-60.6940064
+                        }}
+                        title={"t"}
+                        
+                        description={"d"}
+                    />
+                </MapView>
+                
+            </View>
+        )
+    }
+}
+
+const styles = StyleSheet.create({    
+    container: {
+        ...StyleSheet.absoluteFillObject,
+        height: 200,
+        width: 400,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      },
+      map: {
+        ...StyleSheet.absoluteFillObject,
+      },
+
+      radius: {
+          height: 50,
+          width: 50,
+          borderRadius: 50/2,
+          overflow: 'hidden',
+          backgroundColor: 'rgba(0,112, 255, 0.1)',
+          borderWidth: 1,
+          borderColor: 'rgba(0,112, 255, 0.1)',
+          alignItems: 'center',
+          justifyContent: 'center'
+      },
+      marker: {
+        height: 20,
+        width: 20,
+        borderWidth: 3,
+        borderRadius: 20/2,
+        borderColor: 'white',
+        overflow: 'hidden',
+        backgroundColor: '#007AFF',            
+      }
+})
