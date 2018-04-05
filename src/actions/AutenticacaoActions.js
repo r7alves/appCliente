@@ -7,6 +7,7 @@ import {
     LOADING_LOGIN,
     LOGIN_SUCESSO,
     LOGIN_ERRO,
+    LOGOUT_USER
 } from './types';
 
 export const modificaEmail = (texto) => {
@@ -41,3 +42,5 @@ const loginSucesso = (dispatch) => {
 const loginErro = (erro, dispatch) => {
     dispatch ({ type: LOGIN_ERRO, payload: erro.message });
 }
+
+export const habilitaLogin = () => ({type: LOGOUT_USER, payload: false})

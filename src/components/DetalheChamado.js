@@ -7,7 +7,6 @@ import {
 import { atenderChamado } from '../actions/AppActions';
 import { connect } from 'react-redux';
 import b64 from 'base-64';
-
 import MapView from 'react-native-maps';
 
 const { width, height } = Dimensions.get('window');
@@ -31,14 +30,22 @@ class DetalheChamado extends Component{
     }
     renderBtnAtenderChamado() {
         console.log(this.props.chamadoDados.status)
-        if (this.props.chamadoDados.status == 'atendimento') {
+        if (this.props.chamadoDados.status == 'aberto') {
             return (
-                <Button title="Encerrar Chamado" color='#115E54' onPress={() =>this.openModal()}  />                
+                <Button title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
             )
         }
-        return (
-            <Button title="Atender Chamado" color='#115E54' onPress={() => atenderChamado(this.props.chamadoDados.email, this.props.uid)} />
-        )
+        
+    }
+    renderDate() {
+        console.log(this.props.chamadoDados.status)
+        if (this.props.chamadoDados.status == 'aberto') {
+            return (
+                <Text style={{ fontSize:20, height: 45}} >Criado em: {this.props.chamadoDados.createdAt}</Text> 
+            )
+        }
+        <Text style={{ fontSize:20, height: 45}} >Atualizado em: {this.props.chamadoDados.updateAt}</Text>                
+        
     }
 
     render() {
@@ -63,16 +70,15 @@ class DetalheChamado extends Component{
                         />          
                     </MapView>                                
                 </View>
-                <View style={{flex:3, padding:10}}>
-                    <Text>{this.props.chamadoDados.cliente}</Text>
-                    <Text>{this.props.chamadoDados.descricao}</Text>
-                    <Text>{this.props.chamadoDados.prioridade}</Text>
-                    <Text>{this.props.chamadoDados.status}</Text>             
-                    <Text>{this.props.chamadoDados.email}</Text> 
-                    <Text>{this.props.uid}</Text> 
+                <View style={{flex:1, padding:10}}>
+                    <Text style={{ fontSize:20, height: 45}} >Descrição: {this.props.chamadoDados.descricao}</Text>
+                    <Text style={{ fontSize:20, height: 45}} >Prioridade: {this.props.chamadoDados.prioridade}</Text>
+                    <Text style={{ fontSize:20, height: 45}} >Status do Chamado: {this.props.chamadoDados.status}</Text>             
+                    {this.renderDate()} 
+                    
                 </View>
                 
-                <View>
+                <View style={{padding: 10}}>
                     {this.renderBtnAtenderChamado()}           
                 </View>
                 <View>
@@ -83,11 +89,11 @@ class DetalheChamado extends Component{
                     >
                     
                         <View style={{flex:1, padding:10}}>
-                            <Text>{this.props.chamadoDados.cliente}</Text>
+                            <Text>{this.props.chamadoDados.titulo}</Text>
                             <Text>{this.props.chamadoDados.descricao}</Text>
                             <Text>{this.props.chamadoDados.prioridade}</Text>
-                            <Text>{this.props.chamadoDados.status}</Text>             
-                            <Text>{this.props.chamadoDados.email}</Text> 
+                                         
+                             
                             <Text>{this.props.uid}</Text> 
                         </View>
                         <View style={{ 

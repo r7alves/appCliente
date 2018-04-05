@@ -3,6 +3,8 @@ export const MODIFICA_SENHA = 'modifica_senha';
 export const LOADING_LOGIN = 'loading_login';
 export const LOGIN_SUCESSO = 'login_sucesso';
 export const LOGIN_ERRO = 'login_erro';
+export const LOGOUT_USER = 'logout_user';
+
 
 
 // Types Cadastro
@@ -13,6 +15,7 @@ export const CADASTRO_TECNICO_ERRO = 'cadastro_tecnico_erro';
 
 // Lista Chamados
 export const LISTA_CHAMADOS_ABERTOS = 'lista_chamados_abertos';
+export const CARREGA_CHAMADOS = 'carrega_chamados';
 
 //Lista Cliente
 export const LISTA_CLIENTES = 'lista_clientes';

@@ -6,7 +6,9 @@ import { View, Text, TextInput,
     } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
+
 import { modificaEmail, modificaSenha, autenticarUsuario } from '../actions/AutenticacaoActions';
+
 
 class formLogin extends Component {
     _autenticarUsuario() {
@@ -21,7 +23,7 @@ class formLogin extends Component {
             )
         } 
         return (
-            <Button title="Acessar" color='#2B2B90' onPress={() => this._autenticarUsuario()} />
+            <Button title="Acessar" color='#2B2B90' onPress={() => this._autenticarUsuario()}/>
         )
         
     }

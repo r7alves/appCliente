@@ -5,6 +5,7 @@ import {
     LOGIN_SUCESSO,
     LOADING_LOGIN,
     LOADING_CADASTRO,
+    LOGOUT_USER
 
 } from '../actions/types';
 
@@ -23,6 +24,7 @@ export default ( state = INITICAL_STATE, action) => {
         case LOGIN_ERRO: return { ...state, loading_login: false, erroLogin: action.payload}
         case LOGIN_SUCESSO: return { ...state}
         case LOADING_LOGIN: return { ...state, loading_login: true}        
+        case LOGOUT_USER: return { ...state, loading_login: action.payload}        
 
         default: return state;
     }

@@ -8,7 +8,8 @@ import {
     TextInput,
     ListView,
     TouchableHighlight,
-    TouchableOpacity
+    TouchableOpacity,
+    ActivityIndicator
 } from 'react-native';
 import ActionButton from 'react-native-action-button';
 import { connect } from 'react-redux';
@@ -47,7 +48,7 @@ renderRow(chamado) {
                 borderBottomWidth: 1,
                 borderColor: "#ccc"
             }}>
-                <Text>{chamado.descricao}  - Aberto por: {chamado.usuarioChamado}</Text>
+                <Text style={{ fontSize:20}} >{chamado.titulo}  - Prioridade: {chamado.prioridade}</Text>
             </View>
         </TouchableHighlight>
         
@@ -81,7 +82,8 @@ const styles = StyleSheet.create({
     }
 });
 
-mapStateToProps = state => {    
+mapStateToProps = state => {  
+    carrega_chamados: state.ListaClienteChamadosReducer.carrega_chamados  
 const chamados = _.map(state.ListaClienteChamadosReducer, (val, uid) => {
     return {
         ...val,

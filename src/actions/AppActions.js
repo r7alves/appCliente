@@ -2,7 +2,7 @@ import firebase from 'firebase';
 import { Actions } from 'react-native-router-flux';
 import Base64 from 'base-64';
 import _ from 'lodash';
-
+import moment from 'moment';
 import { 
     LOADING_CADASTRO, 
     CADASTRO_TECNICO_SUCESSO, 
@@ -19,7 +19,8 @@ import {
     MODIFICA_ADD_CHAMADO_TITULO,
     MODIFICA_ADD_CHAMADO_DESCRICAO,
     MODIFICA_ADD_CHAMADO_PRIORIDADE,
-    MODIFICA_ADD_CHAMADO_COLABORADOR
+    MODIFICA_ADD_CHAMADO_COLABORADOR,
+    CARREGA_CHAMADOS
 } from './types';
 
 export const cadastroTeste = (nome) => {
@@ -129,7 +130,7 @@ export const listaChamadosCliente = () => {
     
     let clienteEmailB64 = Base64.encode(currentUser.email);
     return dispatch => {
-        
+        dispatch({ type: CARREGA_CHAMADOS});
         firebase.database().ref('chamados_clientes/'+ clienteEmailB64)        
             .on("value", snapshot => { 
                 console.log(snapshot.val())                   
@@ -219,7 +220,7 @@ export const modificaAddChamadoColaborador = (texto) => {
 }
 
 const successAddChamado = (dispatch) => {
-console.log('chamou o succsee add')
+    console.log('chamou o succsee add')
     dispatch({type: CADASTRO_CHAMADO_SUCESSO, payload: true})
 
 }
@@ -238,18 +239,22 @@ export const habilitaAddChamado = () =>(
     }
 )
 
+
 export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
-    console.log('chamou o metodo')
-    console.log(prioridade)
+    if(prioridade == '')
+    {
+        prioridade = 'Normal'
+    }
+    
     const { currentUser } = firebase.auth();
     const clienteChamadoEmail = currentUser.email;
-    
 
-
+    var createdAt = moment(new Date()).format("DD-MM-YYYY")
 
     return dispatch => {
         const empresaEmailB64 = Base64.encode(clienteChamadoEmail);
-    
+        
+        
         // Busca dados do usuario    
         firebase.database().ref('/clientes/'+empresaEmailB64)
             .once('value')
@@ -266,6 +271,7 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                                 prioridade:prioridade, 
                                 status:'aberto', 
                                 usuarioChamado: colaborador,
+                                createdAt: createdAt,
                                 
                              })                                        
                         .then(() => successAddChamado(dispatch))
@@ -279,4 +285,16 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                 }
             })        
     }
+}
+
+export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colaborador) => {
+    const {currentUser} = firebase.auth();
+    
+    const emailClienteB64 = Base64.encode(currentUser.email);
+
+    firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
+    .update({status: 'atendimento', tecnico: dadosTecnico.nome, tecnicoEmail: tecnicoEmail})
+    
+     
+
 }
