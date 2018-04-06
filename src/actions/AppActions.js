@@ -271,9 +271,20 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                                 prioridade:prioridade, 
                                 status:'aberto', 
                                 usuarioChamado: colaborador,
-                                createdAt: createdAt,
-                                
-                             })                                        
+                                createdAt: createdAt,                                
+                            })
+                        .then(() => { 
+                            firebase.database().ref('/chamados_abertos/'+ empresaEmailB64)
+                                .push({ cliente: dadosCliente.nome,
+                                    email: dadosCliente.email,
+                                    titulo:titulo, 
+                                    descricao:descricao, 
+                                    prioridade:prioridade, 
+                                    status:'aberto', 
+                                    createdAt: createdAt,                                
+                            })
+                        })
+                                      
                         .then(() => successAddChamado(dispatch))
                         .catch(erro => erroAddChamado(erro.message, dispatch)) 
                 } else {
