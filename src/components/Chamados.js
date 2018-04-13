@@ -29,41 +29,13 @@ componentWillReceiveProps(nextProps) {
     this.preparaDados(nextProps.chamados);
 }
 preparaDados(chamados) {
-    const ds = new ListView.DataSource({
-        rowHasChanged: (r1, r2) => r1 !== r2
-    })
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 })
     this.dataSource = ds.cloneWithRows(chamados);
-}
-
-renderRow(chamado) {
-    
-    return (
-        <TouchableHighlight
-            onPress={() => Actions.detalheChamado({title: chamado.titulo, chamadoDados: chamado})}
-            underlayColor="#fff">
-            <View
-                style={{
-                flex: 1,
-                padding: 20,
-                borderBottomWidth: 1,
-                borderColor: "#ccc"
-            }}>
-                <Text style={{ fontSize:20}} >{chamado.titulo}  - Prioridade: {chamado.prioridade}</Text>
-            </View>
-        </TouchableHighlight>
-        
-    )
 }
 
     render() {
         return (
             <View style={{flex:1, backgroundColor: '#f3f3f3'}}>
-               
-                <ListView
-                enableEmptySections
-                dataSource={this.dataSource}
-                renderRow={this.renderRow}
-                />           
                  <ActionButton
                     buttonColor="rgba(19, 15, 103, 1)"
                     onPress={() => { Actions.add(); this.props.habilitaAddChamado()}}/>
@@ -83,7 +55,7 @@ const styles = StyleSheet.create({
 });
 
 mapStateToProps = state => {  
-    carrega_chamados: state.ListaClienteChamadosReducer.carrega_chamados  
+    //carrega_chamados: state.ListaClienteChamadosReducer.carrega_chamados  
 const chamados = _.map(state.ListaClienteChamadosReducer, (val, uid) => {
     return {
         ...val,

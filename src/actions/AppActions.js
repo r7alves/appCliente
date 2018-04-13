@@ -132,8 +132,7 @@ export const listaChamadosCliente = () => {
     return dispatch => {
         dispatch({ type: CARREGA_CHAMADOS});
         firebase.database().ref('chamados_clientes/'+ clienteEmailB64)        
-            .on("value", snapshot => { 
-                console.log(snapshot.val())                   
+            .on("value", snapshot => {                
                 dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})
             })
     }
@@ -220,7 +219,7 @@ export const modificaAddChamadoColaborador = (texto) => {
 }
 
 const successAddChamado = (dispatch) => {
-    console.log('chamou o succsee add')
+    //console.log(dispatch)
     dispatch({type: CADASTRO_CHAMADO_SUCESSO, payload: true})
 
 }
@@ -261,30 +260,31 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
             .then(snapshot => {
                 if(snapshot.val()) {                    
                     const dadosCliente = _.first(_.values(snapshot.val()));                                                            
-                    firebase.database().ref('/chamados_clientes/'+ empresaEmailB64)
-                        .push({ cliente: dadosCliente.nome,
-                                email: dadosCliente.email,
-                                latitude: dadosCliente.latitude,
-                                longitude: dadosCliente.longitude, 
-                                titulo:titulo, 
-                                descricao:descricao, 
-                                prioridade:prioridade, 
-                                status:'aberto', 
-                                usuarioChamado: colaborador,
-                                createdAt: createdAt,                                
-                            })
-                        .then(() => { 
-                            firebase.database().ref('/chamados_abertos/'+ empresaEmailB64)
-                                .push({ cliente: dadosCliente.nome,
-                                    email: dadosCliente.email,
-                                    titulo:titulo, 
-                                    descricao:descricao, 
-                                    prioridade:prioridade, 
-                                    status:'aberto', 
-                                    createdAt: createdAt,                                
-                            })
-                        })
-                                      
+                    var dadosChamado = {
+                        cliente: dadosCliente.nome,
+                        latitude: dadosCliente.latitude,
+                        longitude: dadosCliente.longitude,
+                        titulo:titulo,
+                        prioridade:prioridade,
+                        status:'aberto',
+                        createdAt: createdAt,
+                    }
+                    var chamadoRef = firebase.database().ref().child('/chamados_abertos/').push(dadosChamado);                        
+                    var postId = chamadoRef.key;                                          
+                    console.log(postId);
+                    firebase.database().ref('/chamados_clientes/'+ empresaEmailB64 +'/'+postId)
+                        .set({ 
+                            cliente: dadosCliente.nome,
+                            email: dadosCliente.email,
+                            latitude: dadosCliente.latitude,
+                            longitude: dadosCliente.longitude,
+                            titulo:titulo,
+                            descricao:descricao,
+                            prioridade:prioridade,
+                            status:'aberto',
+                            usuarioChamado: colaborador,
+                            createdAt: createdAt,
+                        })              
                         .then(() => successAddChamado(dispatch))
                         .catch(erro => erroAddChamado(erro.message, dispatch)) 
                 } else {
@@ -297,7 +297,6 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
             })        
     }
 }
-
 export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colaborador) => {
     const {currentUser} = firebase.auth();
     

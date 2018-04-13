@@ -34,6 +34,7 @@ export default (state = INITIAL_STATE, action) => {
     //console.log(action)
     switch(action.type) {
         case CADASTRO_CHAMADO_SUCESSO: 
+            //console.log(state)
             return{...state, 
                         is_registered:action.payload, 
                         add_chamado_cliente_nome: '',

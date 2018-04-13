@@ -12,8 +12,7 @@ class AddChamado extends Component {
     };
 
     _adicionaChamado()
-    {
-        console.log(this.state.prioridade);
+    {        
         if(this.props.titulo && this.props.descricao && this.props.colaborador )
         {
             this.props.adicionaChamado(this.props.titulo, this.props.descricao, this.state.prioridade, this.props.colaborador)
