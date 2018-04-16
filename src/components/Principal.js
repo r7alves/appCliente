@@ -21,8 +21,8 @@ export default class Principal extends React.Component {
     state = {
         index: 0,
         routes: [
-          { key: '1', title: 'Chat' },
-          { key: '2', title: 'Chamados' },
+            { key: '1', title: 'Chamados' },
+            { key: '3', title: 'Chat' },
         ],
     };
 
@@ -31,8 +31,8 @@ export default class Principal extends React.Component {
     _renderHeader = props => <TabBarMenu {...props }/>;
   
     _renderScene = SceneMap({
-      '1': Tecnicos,
-      '2': Chamados,
+      '1': Chamados,
+      '3': Tecnicos,
     });
   
     render() {

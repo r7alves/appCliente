@@ -51,7 +51,25 @@ class DetalheChamado extends Component{
     render() {
         return (
             <View style={{flex:1}}>
-                
+                <View style={styles.container}>                                
+                    <MapView style={styles.map} region={{
+                            latitude: this.props.chamadoDados.latitude,
+                            longitude: this.props.chamadoDados.longitude,
+                            longitudeDelta: 0.1,
+                            latitudeDelta:0.1
+                        }} 
+                        showsUserLocation
+                        showsMyLocationButton
+                        toolbarEnabled
+                    >
+                        <MapView.Marker 
+                            coordinate={{ latitude: this.props.chamadoDados.latitude, longitude: this.props.chamadoDados.longitude }} 
+                            title={this.props.chamadoDados.cliente} 
+                            description={this.props.chamadoDados.titulo}
+                            showCallout                        
+                        />          
+                    </MapView>                                
+                </View>
                 <View style={{flex:1, padding:10}}>
                     <Text style={{ fontSize:20, height: 45}} >Descrição: {this.props.chamadoDados.descricao}</Text>
                     <Text style={{ fontSize:20, height: 45}} >Prioridade: {this.props.chamadoDados.prioridade}</Text>
