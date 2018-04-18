@@ -4,7 +4,11 @@ import {
     StyleSheet, Dimensions, 
     Button, Picker, Modal, TextInput, Alert
 } from 'react-native';
-import { atenderChamado, excluirChamado } from '../actions/AppActions';
+import { 
+    atenderChamado, 
+    excluirChamado,
+    modificaAddChamadoTitulo 
+    } from '../actions/AppActions';
 import { connect } from 'react-redux';
 import b64 from 'base-64';
 import MapView from 'react-native-maps';
@@ -18,10 +22,14 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPEC_RADIO;
 
 class DetalheChamado extends Component{
     state = {
-        modalVisible: false,
-        language: '',
-        chamadoStatus: this.props.chamadoDados.status
-    };
+            modalVisible: false,
+            language: '',
+            chamadoStatus: this.props.chamadoDados.status,
+            prioridade: this.props.chamadoDados.prioridade,
+
+        }
+
+    
     openModal() {
         this.setState({modalVisible:true});
     }
@@ -34,7 +42,7 @@ class DetalheChamado extends Component{
         this.props.excluirChamado(this.props.chamadoDados.uid)
     }
 
-    renderBtnAtenderChamado() {
+    renderBtnAlterChamado() {
         if (this.props.chamadoDados.status == 'aberto') {
             return (
                 <View>
@@ -65,9 +73,15 @@ class DetalheChamado extends Component{
         
         
     }
-    
+    renderTec() {
+        if (this.props.chamadoDados.tecnico !== null) {
+            return (
+                <Text style={{ fontSize: 25, height: 45 }} >Tecnico: {this.props.chamadoDados.tecnico}</Text>  
+            )
+        }
+    }
     render() {
-        console.log(this.props.chamadoDados)
+        console.log('chamou esse console aqui caraio' + this.props.title)
         return (
             <View style={{flex:1}}>
                 
@@ -75,13 +89,13 @@ class DetalheChamado extends Component{
                     <Text style={{ fontSize:25, height: 45}} >Descrição: {this.props.chamadoDados.descricao}</Text>
                     <Text style={{ fontSize:25, height: 45}} >Prioridade: {this.props.chamadoDados.prioridade}</Text>
                     <Text style={{ fontSize:25, height: 45}} >Status do Chamado: {this.props.chamadoDados.status}</Text>             
-                    <Text style={{ fontSize:25, height: 45}} >Responsavel pelo Atendimento: {this.props.chamadoDados.tecnico}</Text>                
+                                  
                     {this.renderDate()} 
                     
                 </View>
                 
                 <View style={{padding: 10}}>
-                    {this.renderBtnAtenderChamado()}           
+                    {this.renderBtnAlterChamado()}           
                 </View>
                 <View>
                     <Modal
@@ -90,36 +104,23 @@ class DetalheChamado extends Component{
                         onRequestClose={()=> this.closeModal()}
                     >
                     
-                        <View style={{flex:1, padding:10}}>
-                            <Text>{this.props.chamadoDados.titulo}</Text>
+                        <View style={{ flex: 1, justifyContent: 'center' }}>
                             <Text>{this.props.chamadoDados.descricao}</Text>
                             <Text>{this.props.chamadoDados.prioridade}</Text>
-                                         
-                             
                             <Text>{this.props.uid}</Text> 
+                            <TextInput placeholder='Título' style={{ fontSize: 20, height: 45 }}
+                                onChangeText={(texto) => this.props.modificaAddChamadoTitulo(texto)}
+                                value={this.props.titulo} 
+                                require={true} />
+
+
                         </View>
-                        <View style={{ 
-                            flex: 1,
-                            justifyContent: 'center',                            
-                        }}>
+
                         
-                            <TextInput placeholder="Diagnostico do Problema" multiline style={{fontSize:14}}/>
-                            <TextInput placeholder="Atividades Realizadas" multiline style={{fontSize:14}}/>                            
-                            <Picker mode={'dropdown'}
-                                selectedValue={this.state.chamadoStatus}
-                                onValueChange={(itemValue, itemIndex) => this.setState({chamadoStatus: itemValue})}
-                            >
-                                <Picker.Item label="Aberto" value="aberto" />
-                                <Picker.Item label="Em Atendimento" value="atendimento"/>
-                                <Picker.Item label="Em Estudo" value="estudo" />
-                                <Picker.Item label="Resolvido" value="resolvido" />
-                                <Picker.Item label="Sem Solução" value="sem-solução" />
-                                <Picker.Item label="Fechado" value="fechado" />
-                            </Picker>
-                        </View>      
+
                         <View>
-                            <Button title="Enviar" color='#115E54' onPress={() =>                     
-                            atenderChamado(this.props.chamadoDados.email, this.props.uid)}  />            
+                            <Button title="Enviar" color='#1E90FF' onPress={() =>                     
+                            atualizarChamado(this.props.chamadoDados.email, this.props.uid)}  />            
                         </View>
                     </Modal>
                 </View>
@@ -129,9 +130,22 @@ class DetalheChamado extends Component{
         )
     }
 }
-mapStateToProps = state => {
-}
-export default connect(null, {atenderChamado, excluirChamado})(DetalheChamado);
+const mapStateToProps = (state) => (
+    
+    {
+        titulo: state.ChamadoReducer.add_chamado_titulo,
+        descricao: state.ChamadoReducer.add_chamado_descricao,
+        prioridade: state.ChamadoReducer.add_chamado_prioridade,
+        colaborador: state.ChamadoReducer.add_chamado_colaborador,
+        
+    }
+     
+)
+export default connect(mapStateToProps, { 
+                                atualizarChamado, 
+                                excluirChamado, 
+                                modificaAddChamadoTitulo
+                                })(DetalheChamado);
 
 const styles = StyleSheet.create({    
     container: {     
