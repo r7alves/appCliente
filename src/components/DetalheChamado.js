@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { 
     View, Text, SectionList, 
     StyleSheet, Dimensions, 
-    Button, Picker, Modal, TextInput
+    Button, Picker, Modal, TextInput, Alert
 } from 'react-native';
-import { atenderChamado } from '../actions/AppActions';
+import { atenderChamado, excluirChamado } from '../actions/AppActions';
 import { connect } from 'react-redux';
 import b64 from 'base-64';
 import MapView from 'react-native-maps';
@@ -28,17 +28,34 @@ class DetalheChamado extends Component{
     closeModal() {
         this.setState({modalVisible:false});
     }
+
+    _excluirChamado()
+    {
+        this.props.excluirChamado(this.props.chamadoDados.uid)
+    }
+
     renderBtnAtenderChamado() {
-        console.log(this.props.chamadoDados.status)
         if (this.props.chamadoDados.status == 'aberto') {
             return (
-                <Button title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
+                <View>
+                    <Button style={{padding: 5,}} title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
+                    <Button title="Excluir Chamado" color='#DC143C' 
+                        onPress={() => Alert.alert(
+                                        'Confirmar Exclusão!',
+                                        'Tem certeza disso?',
+                                        [
+                                            { text: 'Sim', onPress: () => this._excluirChamado() },
+                                            { text: 'Não', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                                        ],
+                                        { cancelable: false }
+                        )}  
+                    />                
+                </View>
             )
         }
         
     }
     renderDate() {
-        console.log(this.props.chamadoDados.status)
         if (this.props.chamadoDados.status == 'aberto') {
             return (
                 <Text style={{ fontSize:20, height: 45}} >Criado em: {this.props.chamadoDados.createdAt}</Text> 
@@ -46,34 +63,19 @@ class DetalheChamado extends Component{
         }
         <Text style={{ fontSize:20, height: 45}} >Atualizado em: {this.props.chamadoDados.updateAt}</Text>                
         
+        
     }
-
+    
     render() {
+        console.log(this.props.chamadoDados)
         return (
             <View style={{flex:1}}>
-                <View style={styles.container}>                                
-                    <MapView style={styles.map} region={{
-                            latitude: this.props.chamadoDados.latitude,
-                            longitude: this.props.chamadoDados.longitude,
-                            longitudeDelta: 0.1,
-                            latitudeDelta:0.1
-                        }} 
-                        showsUserLocation
-                        showsMyLocationButton
-                        toolbarEnabled
-                    >
-                        <MapView.Marker 
-                            coordinate={{ latitude: this.props.chamadoDados.latitude, longitude: this.props.chamadoDados.longitude }} 
-                            title={this.props.chamadoDados.cliente} 
-                            description={this.props.chamadoDados.titulo}
-                            showCallout                        
-                        />          
-                    </MapView>                                
-                </View>
-                <View style={{flex:1, padding:10}}>
-                    <Text style={{ fontSize:20, height: 45}} >Descrição: {this.props.chamadoDados.descricao}</Text>
-                    <Text style={{ fontSize:20, height: 45}} >Prioridade: {this.props.chamadoDados.prioridade}</Text>
-                    <Text style={{ fontSize:20, height: 45}} >Status do Chamado: {this.props.chamadoDados.status}</Text>             
+                
+                <View style={{flex:1, padding:20}}>
+                    <Text style={{ fontSize:25, height: 45}} >Descrição: {this.props.chamadoDados.descricao}</Text>
+                    <Text style={{ fontSize:25, height: 45}} >Prioridade: {this.props.chamadoDados.prioridade}</Text>
+                    <Text style={{ fontSize:25, height: 45}} >Status do Chamado: {this.props.chamadoDados.status}</Text>             
+                    <Text style={{ fontSize:25, height: 45}} >Responsavel pelo Atendimento: {this.props.chamadoDados.tecnico}</Text>                
                     {this.renderDate()} 
                     
                 </View>
@@ -129,7 +131,7 @@ class DetalheChamado extends Component{
 }
 mapStateToProps = state => {
 }
-export default connect(null, {atenderChamado})(DetalheChamado);
+export default connect(null, {atenderChamado, excluirChamado})(DetalheChamado);
 
 const styles = StyleSheet.create({    
     container: {     

@@ -275,7 +275,7 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                     firebase.database().ref('/chamados_clientes/'+ empresaEmailB64 +'/'+postId)
                         .set({ 
                             cliente: dadosCliente.nome,
-                            email: dadosCliente.email,
+                            emailCliente: dadosCliente.email,
                             latitude: dadosCliente.latitude,
                             longitude: dadosCliente.longitude,
                             titulo:titulo,
@@ -297,6 +297,7 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
             })        
     }
 }
+
 export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colaborador) => {
     const {currentUser} = firebase.auth();
     
@@ -304,7 +305,24 @@ export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colab
 
     firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
     .update({status: 'atendimento', tecnico: dadosTecnico.nome, tecnicoEmail: tecnicoEmail})
+     
+
+}
+
+export const excluirChamado = (chamadoUID) => {
+    console.log(chamadoUID)
+    const {currentUser} = firebase.auth();
     
+    const emailClienteB64 = Base64.encode(currentUser.email);
+
+    return dispatch => 
+    {
+        firebase.database().ref('/chamados_abertos/' + chamadoUID)
+        .remove()
+        firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
+        .remove()
+        Actions.principal()
+    }
      
 
 }

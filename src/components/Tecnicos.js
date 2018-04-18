@@ -23,7 +23,7 @@ class Tecnicos extends Component {
     renderRow(tecnico) {
         return(
             <View style={{ flex: 1, padding: 20, borderBottomWidth: 1, borderColor: "#ccc"}}>
-                    <Text style={{ fontSize: 25}}>{tecnico.val.nome}</Text>
+                    <Text style={{ fontSize: 20}}>{tecnico.val.nome}</Text>
                 </View>
         )
     }

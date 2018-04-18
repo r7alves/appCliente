@@ -1,4 +1,4 @@
-package com.appsolution;
+package com.appcliente;
 
 import android.app.Application;
 
