@@ -34,10 +34,11 @@ class Chamados extends Component {
     }
     
     renderRow(chamado) {
+        
         return (
                 
                 <TouchableHighlight
-                    onPress={() => Actions.detalheChamado({ title: chamado.titulo, chamadoDados: chamado })}
+                    onPress={() => Actions.detalheChamado({ title: chamado.titulo, chamadoDados: chamado, titulo: chamado.titulo})}
                     underlayColor="#fff">
                     <View
                         style={{

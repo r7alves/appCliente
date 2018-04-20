@@ -10,8 +10,8 @@ import {
 } from '../actions/types';
 
 const INITICAL_STATE = {
-    email: 'guanabara@gmail.com',
-    senha:'123456',
+    email: '',
+    senha:'',
     loading_login: false,  
     erroLogin: '',    
 }

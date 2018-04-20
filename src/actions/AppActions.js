@@ -262,6 +262,7 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                     const dadosCliente = _.first(_.values(snapshot.val()));                                                            
                     var dadosChamado = {
                         cliente: dadosCliente.nome,
+                        emailCliente: dadosCliente.email,
                         latitude: dadosCliente.latitude,
                         longitude: dadosCliente.longitude,
                         titulo:titulo,

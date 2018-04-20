@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { 
     View, Text, SectionList, 
     StyleSheet, Dimensions, 
-    Button, Picker, Modal, TextInput, Alert
-} from 'react-native';
+    Button, Picker, Modal, TextInput, Alert} from 'react-native';
 import { 
     atenderChamado, 
+    atualizaChamado,
     excluirChamado,
     modificaAddChamadoTitulo 
     } from '../actions/AppActions';
@@ -21,13 +21,23 @@ const LATITUDE_DELTA = 0.0922
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPEC_RADIO;
 
 class DetalheChamado extends Component{
-    state = {
+    
+    constructor(props)
+    {
+        super(props)
+        this.state = {
             modalVisible: false,
             language: '',
-            chamadoStatus: this.props.chamadoDados.status,
+            status: this.props.chamadoDados.status,
+            titulo: this.props.chamadoDados.titulo,
+            descricao: this.props.chamadoDados.descricao,
+            descricao: this.props.chamadoDados.descricao,
             prioridade: this.props.chamadoDados.prioridade,
-
         }
+    }
+    
+    
+    
 
     
     openModal() {
@@ -42,11 +52,11 @@ class DetalheChamado extends Component{
         this.props.excluirChamado(this.props.chamadoDados.uid)
     }
 
+    //<Button style={{padding: 5,}} title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
     renderBtnAlterChamado() {
         if (this.props.chamadoDados.status == 'aberto') {
             return (
                 <View>
-                    <Button style={{padding: 5,}} title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
                     <Button title="Excluir Chamado" color='#DC143C' 
                         onPress={() => Alert.alert(
                                         'Confirmar Exclusão!',
@@ -81,7 +91,7 @@ class DetalheChamado extends Component{
         }
     }
     render() {
-        console.log('chamou esse console aqui caraio' + this.props.title)
+        console.log('funciona porraaaaa ' + this.state.titulo )
         return (
             <View style={{flex:1}}>
                 
@@ -107,12 +117,10 @@ class DetalheChamado extends Component{
                         <View style={{ flex: 1, justifyContent: 'center' }}>
                             <Text>{this.props.chamadoDados.descricao}</Text>
                             <Text>{this.props.chamadoDados.prioridade}</Text>
-                            <Text>{this.props.uid}</Text> 
+                           
                             <TextInput placeholder='Título' style={{ fontSize: 20, height: 45 }}
-                                onChangeText={(texto) => this.props.modificaAddChamadoTitulo(texto)}
-                                value={this.props.titulo} 
-                                require={true} />
-
+                                onChangeText={(texto) => this.setState({titulo:texto})} value={this.state.titulo}/>
+                                
 
                         </View>
 
@@ -120,7 +128,7 @@ class DetalheChamado extends Component{
 
                         <View>
                             <Button title="Enviar" color='#1E90FF' onPress={() =>                     
-                            atualizarChamado(this.props.chamadoDados.email, this.props.uid)}  />            
+                            atualizaChamado(this.props.chamadoDados.email, this.props.uid)}  />            
                         </View>
                     </Modal>
                 </View>
@@ -130,19 +138,9 @@ class DetalheChamado extends Component{
         )
     }
 }
-const mapStateToProps = (state) => (
-    
-    {
-        titulo: state.ChamadoReducer.add_chamado_titulo,
-        descricao: state.ChamadoReducer.add_chamado_descricao,
-        prioridade: state.ChamadoReducer.add_chamado_prioridade,
-        colaborador: state.ChamadoReducer.add_chamado_colaborador,
-        
-    }
-     
-)
-export default connect(mapStateToProps, { 
-                                atualizarChamado, 
+
+export default connect(null, { 
+                                atualizaChamado, 
                                 excluirChamado, 
                                 modificaAddChamadoTitulo
                                 })(DetalheChamado);
