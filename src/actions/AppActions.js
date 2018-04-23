@@ -23,183 +23,6 @@ import {
     CARREGA_CHAMADOS
 } from './types';
 
-export const cadastroTeste = (nome) => {
-    console.log(nome);
-}
-
-export const criaChamados = () => {
-    
-    const { currentUser } = firebase.auth();
-    const empresaEmail = currentUser.email;
-    
-    return dispatch => {
-        const empresaEmailB64 = Base64.encode(empresaEmail);
-    
-        // Busca dados do usuario    
-        firebase.database().ref('/clientes/'+empresaEmailB64)
-            .once('value')
-            .then(snapshot => {
-                if(snapshot.val()) {                    
-                    const dadosCliente = _.first(_.values(snapshot.val()));                                                            
-                    firebase.database().ref('/chamados_clientes/'+ empresaEmailB64)
-                        .push({ cliente: dadosCliente.nome, descricao:'testeChamado Alencar', status:'aberto', prioridade:'alta'})                                        
-                        .then(() => {
-                            // console.log("chamados_cluentes"); 
-                            // console.log('Clunete'+ dadosCliente.nome + ': Email: '+ empresaEmail)                                                   
-                            // firebase.database().ref('/chamados_clientes/'+ empresaEmailB64)
-                            //     .push({cliente: dadosCliente.nome, email: empresaEmail})                                
-                        }) 
-                } else {
-                    console.log('erro localizar chamado');
-                    dispatch({
-                        
-                        type: CADASTRO_TECNICO_ERRO, payload: 'Erro ao localizar cliente'
-                    })
-                }
-            })        
-    }
-}
-
-export const cadastraUsuarioCliente = (nome, email, senha) => {
-    console.log(email);
-    return dispatch => {
-        dispatch({ type: LOADING_CADASTRO});
-        firebase.auth().createUserWithEmailAndPassword(email, senha)
-            .then(user => {
-                let emailB64 = Base64.encode(email);
-                firebase.database().ref('/clientes/'+emailB64)
-                    .push({ nome })
-                    .then(value => cadastraUsuarioTecnicoSucesso(dispatch))
-            })
-            .catch(erro => cadastraUsuarioTecnicoErro(erro, dispatch));
-    }
-}
-
-export const cadastraUsuarioTecnico = (nome, email, senha) => {
-    console.log(email);    
-    return dispatch => {
-        dispatch({ type: LOADING_CADASTRO });
-        firebase.auth().createUserWithEmailAndPassword(email, senha)
-            .then(user => {
-                let emailB64 = Base64.encode(email);
-                firebase.database().ref('/tecnicos/'+emailB64)
-                    .push({ nome })
-                    .then(value => cadastraUsuarioTecnicoSucesso(dispatch))
-            })
-            .catch(erro => cadastraUsuarioTecnicoErro(erro, dispatch));
-    }
-}
-
-const cadastraUsuarioTecnicoSucesso = (dispatch) => {
-    console.log('sucesso');
-    dispatch({ type: CADASTRO_TECNICO_SUCESSO });
-}
-
-const cadastraUsuarioTecnicoErro = (erro, dispatch) => {
-    console.log('erro cadastro');
-    dispatch({ type: CADASTRO_TECNICO_ERRO, payload: erro.message });
-}
-
-export const listaChamadosAbertos = () => {
-    //const { currentUser } = firebase.auth();
-    
-    return dispatch => {
-        //let usuarioEmailB64 = Base64.encode(currentUser.email);
-        firebase.database().ref('/chamados_clientes/')
-            .on("value", snapshot => {
-                dispatch({ type: LISTA_CHAMADOS_ABERTOS, payload:(_.values(snapshot.val()))})
-            })
-    }
-}
-
-export const listaClientes = () => {
-    return dispatch => {
-        firebase.database().ref('/clientes/')
-            .once("value")
-                .then(snapshot => {
-                    // Converte json em array                                
-                    dispatch({ type: LISTA_CLIENTES, payload:(snapshot.val())})
-            })
-    }
-}
-
-export const listaChamadosCliente = () => {
-    const {currentUser} = firebase.auth();
-    
-    console.log('actions: '+ currentUser.email);
-    
-    let clienteEmailB64 = Base64.encode(currentUser.email);
-    return dispatch => {
-        dispatch({ type: CARREGA_CHAMADOS});
-        firebase.database().ref('chamados_clientes/'+ clienteEmailB64)        
-            .on("value", snapshot => {                
-                dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})
-            })
-    }
-}
-
-export const listaTecnicos = () => {    
-    return dispatch => {
-        console.log('f')
-        firebase.database().ref('/tecnicos/')
-            .once("value")
-                .then(snapshot => {
-                    dispatch({ type: LISTA_TECNICOS, payload: (_.values(snapshot.val()))})
-                })
-    }
-}
-
-export const atenderChamado = (emailCliente, chamadoUID) => {
-    const { currentUser } = firebase.auth();
-    const tecnicoEmail = currentUser.email;
-    let tecnicoEmailB64 = Base64.encode(tecnicoEmail);
-    firebase.database().ref('/tecnicos/'+ tecnicoEmailB64)
-        .once('value')
-        .then(snapshot => {
-            if(snapshot.val()){                
-                const dadosTecnico = _.first(_.values(snapshot.val()));                                        
-                let emailClienteB64 = Base64.encode(emailCliente);
-                firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID )            
-                    .update({            
-                        status:'atendimento', 
-                        tecnico: dadosTecnico.nome,
-                        tecnicoEmail: tecnicoEmail,
-                    })
-                firebase.database().ref('/tecnico_chamados/' + tecnicoEmailB64 +'/'+chamadoUID)
-                    .set({ tecnicoEmail, chamadoUID })
-                                            
-            } else {
-                console.log('nao encontrou')
-            }
-        });
-    
-}
-
-export const encerrarChamado = (emailCliente, chamadoUID) => {
-    const { currentUser} = firebase.auth();
-    const tecnicoEmail = currentUser.email;
-    let tecnicoEmailB64 = Base64.encode(tecnicoEmail);
-    firebase.database().ref('/tecnicos/' + tecnicoEmailB64)
-        .once('value')
-        .then(snapshot => {
-            if(snapshot.val()){
-                const dadosTecnico = _.first(_.values(snapshot.val()));
-                let emailClienteB64 = Base64.encode(emailCliente);
-                firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
-                    .update({
-                        status: 'resolvido',
-                        tecnico: dadosTecnico.nome,
-                        tecnicoEmail: tecnicoEmail,
-                    })
-                    firebase.database().ref('/tecnico_chamados/' + tecnicoEmailB64 +'/'+chamadoUID)
-                        .set({ tecnicoEmail, chamadoUID })
-                                                
-                } else {
-                    console.log('nao encontrou')
-                }
-            });
-        
-}
 
 //============Metodos para chamados cliente==========================
 export const modificaAddChamadoTitulo = (texto) => {
@@ -252,8 +75,7 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
 
     return dispatch => {
         const empresaEmailB64 = Base64.encode(clienteChamadoEmail);
-        
-        
+                
         // Busca dados do usuario    
         firebase.database().ref('/clientes/'+empresaEmailB64)
             .once('value')
@@ -268,30 +90,38 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
                         titulo:titulo,
                         prioridade:prioridade,
                         status:'aberto',
+                        descricao: descricao,
+                        usuarioChamado: colaborador,
                         createdAt: createdAt,
+
                     }
-                    var chamadoRef = firebase.database().ref().child('/chamados_abertos/').push(dadosChamado);                        
-                    var postId = chamadoRef.key;                                          
-                    console.log(postId);
-                    firebase.database().ref('/chamados_clientes/'+ empresaEmailB64 +'/'+postId)
-                        .set({ 
-                            cliente: dadosCliente.nome,
-                            emailCliente: dadosCliente.email,
-                            latitude: dadosCliente.latitude,
-                            longitude: dadosCliente.longitude,
-                            titulo:titulo,
-                            descricao:descricao,
-                            prioridade:prioridade,
-                            status:'aberto',
-                            usuarioChamado: colaborador,
-                            createdAt: createdAt,
-                        })              
+
+                    var chamadoRef = firebase.database().ref().child('/chamados').push(dadosChamado)
                         .then(() => successAddChamado(dispatch))
                         .catch(erro => erroAddChamado(erro.message, dispatch)) 
+                    var postId = chamadoRef.key;                                          
+
+                    // Chamados
+                    // console.log(postId);
+                    // firebase.database().ref('/chamados_clientes/'+ empresaEmailB64 +'/'+postId)
+                    //     .set({ 
+                    //         cliente: dadosCliente.nome,
+                    //         emailCliente: dadosCliente.email,
+                    //         latitude: dadosCliente.latitude,
+                    //         longitude: dadosCliente.longitude,
+                    //         titulo:titulo,
+                    //         descricao:descricao,
+                    //         prioridade:prioridade,
+                    //         status:'aberto',
+                    //         usuarioChamado: colaborador,
+                    //         createdAt: createdAt,
+                    //     })              
+                    //     .then(() => successAddChamado(dispatch))
+                    //     .catch(erro => erroAddChamado(erro.message, dispatch))
+                        
                 } else {
                     console.log('erro localizar chamado');
-                    dispatch({
-                        
+                    dispatch({                        
                         type: CADASTRO_CHAMADO_ERRO, payload: 'Erro ao Cadastro cliente'
                     })
                 }
@@ -300,30 +130,214 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
 }
 
 export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colaborador) => {
-    const {currentUser} = firebase.auth();
-    
-    const emailClienteB64 = Base64.encode(currentUser.email);
+    //const {currentUser} = firebase.auth();    
+    //const emailClienteB64 = Base64.encode(currentUser.email);
+    firebase.database().ref('/chamados/'+chamadoUID)
 
-    firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
-    .update({status: 'atendimento', tecnico: dadosTecnico.nome, tecnicoEmail: tecnicoEmail})
-     
-
+    // MUDAR STATUS PARA VALOR CAPTURADO NA VIEW
+    .update({status: 'atendimento', tecnico: dadosTecnico.nome, tecnicoEmail: tecnicoEmail})     
 }
 
 export const excluirChamado = (chamadoUID) => {
-    console.log(chamadoUID)
-    const {currentUser} = firebase.auth();
-    
-    const emailClienteB64 = Base64.encode(currentUser.email);
+    // console.log(chamadoUID)
+    // const {currentUser} = firebase.auth();    
+    // const emailClienteB64 = Base64.encode(currentUser.email);
 
     return dispatch => 
     {
-        firebase.database().ref('/chamados_abertos/' + chamadoUID)
-        .remove()
-        firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
-        .remove()
+        firebase.database().ref('/chamados/' + chamadoUID).remove()
+        //firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID).remove()
         Actions.principal()
-    }
-     
-
+    }    
 }
+
+export const listaChamadosCliente = () => {
+    const {currentUser} = firebase.auth();
+    
+    console.log('actions: '+ currentUser.email);
+    
+    let clienteEmailB64 = Base64.encode(currentUser.email);
+        
+
+    return dispatch => {
+        dispatch({ type: CARREGA_CHAMADOS});
+        
+        var chamadosRef = firebase.database().ref("chamados");
+        chamadosRef.orderByChild("emailCliente").equalTo(currentUser.email)
+            .on("value", function(snapshot) {
+                console.log(snapshot.val());
+                dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})                    
+            });
+
+        // firebase.database().ref('chamados/'+ clienteEmailB64)        
+        //     .on("value", snapshot => {                
+        //         dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})
+        //     })
+
+    } // End Dispatch
+}
+
+export const listaTecnicos = () => {    
+    return dispatch => {
+        console.log('f')
+        firebase.database().ref('/tecnicos/')
+            .once("value")
+                .then(snapshot => {
+                    dispatch({ type: LISTA_TECNICOS, payload: (_.values(snapshot.val()))})
+                })
+    }
+}
+
+
+// EXCLUIR METODOS 
+// export const cadastroTeste = (nome) => {
+//     console.log(nome);
+// }
+
+// export const criaChamados = () => {
+    
+//     const { currentUser } = firebase.auth();
+//     const empresaEmail = currentUser.email;
+    
+//     return dispatch => {
+//         const empresaEmailB64 = Base64.encode(empresaEmail);
+    
+//         // Busca dados do usuario    
+//         firebase.database().ref('/clientes/'+empresaEmailB64)
+//             .once('value')
+//             .then(snapshot => {
+//                 if(snapshot.val()) {                    
+//                     const dadosCliente = _.first(_.values(snapshot.val()));                                                            
+//                     firebase.database().ref('/chamados_clientes/'+ empresaEmailB64)
+//                         .push({ cliente: dadosCliente.nome, descricao:'testeChamado Alencar', status:'aberto', prioridade:'alta'})                                        
+//                         .then(() => {
+//                             // console.log("chamados_cluentes"); 
+//                             // console.log('Clunete'+ dadosCliente.nome + ': Email: '+ empresaEmail)                                                   
+//                             // firebase.database().ref('/chamados_clientes/'+ empresaEmailB64)
+//                             //     .push({cliente: dadosCliente.nome, email: empresaEmail})                                
+//                         }) 
+//                 } else {
+//                     console.log('erro localizar chamado');
+//                     dispatch({
+                        
+//                         type: CADASTRO_TECNICO_ERRO, payload: 'Erro ao localizar cliente'
+//                     })
+//                 }
+//             })        
+//     }
+// }
+
+// export const cadastraUsuarioCliente = (nome, email, senha) => {
+//     console.log(email);
+//     return dispatch => {
+//         dispatch({ type: LOADING_CADASTRO});
+//         firebase.auth().createUserWithEmailAndPassword(email, senha)
+//             .then(user => {
+//                 let emailB64 = Base64.encode(email);
+//                 firebase.database().ref('/clientes/'+emailB64)
+//                     .push({ nome })
+//                     .then(value => cadastraUsuarioTecnicoSucesso(dispatch))
+//             })
+//             .catch(erro => cadastraUsuarioTecnicoErro(erro, dispatch));
+//     }
+// }
+
+// export const cadastraUsuarioTecnico = (nome, email, senha) => {
+//     console.log(email);    
+//     return dispatch => {
+//         dispatch({ type: LOADING_CADASTRO });
+//         firebase.auth().createUserWithEmailAndPassword(email, senha)
+//             .then(user => {
+//                 let emailB64 = Base64.encode(email);
+//                 firebase.database().ref('/tecnicos/'+emailB64)
+//                     .push({ nome })
+//                     .then(value => cadastraUsuarioTecnicoSucesso(dispatch))
+//             })
+//             .catch(erro => cadastraUsuarioTecnicoErro(erro, dispatch));
+//     }
+// }
+
+// const cadastraUsuarioTecnicoSucesso = (dispatch) => {
+//     console.log('sucesso');
+//     dispatch({ type: CADASTRO_TECNICO_SUCESSO });
+// }
+
+// const cadastraUsuarioTecnicoErro = (erro, dispatch) => {
+//     console.log('erro cadastro');
+//     dispatch({ type: CADASTRO_TECNICO_ERRO, payload: erro.message });
+// }
+
+// export const listaChamadosAbertos = () => {
+//     //const { currentUser } = firebase.auth();
+    
+//     return dispatch => {
+//         //let usuarioEmailB64 = Base64.encode(currentUser.email);
+//         firebase.database().ref('/chamados_clientes/')
+//             .on("value", snapshot => {
+//                 dispatch({ type: LISTA_CHAMADOS_ABERTOS, payload:(_.values(snapshot.val()))})
+//             })
+//     }
+// }
+
+// export const listaClientes = () => {
+//     return dispatch => {
+//         firebase.database().ref('/clientes/')
+//             .once("value")
+//                 .then(snapshot => {
+//                     // Converte json em array                                
+//                     dispatch({ type: LISTA_CLIENTES, payload:(snapshot.val())})
+//             })
+//     }
+// }
+
+// export const atenderChamado = (emailCliente, chamadoUID) => {
+//     const { currentUser } = firebase.auth();
+//     const tecnicoEmail = currentUser.email;
+//     let tecnicoEmailB64 = Base64.encode(tecnicoEmail);
+//     firebase.database().ref('/tecnicos/'+ tecnicoEmailB64)
+//         .once('value')
+//         .then(snapshot => {
+//             if(snapshot.val()){                
+//                 const dadosTecnico = _.first(_.values(snapshot.val()));                                        
+//                 let emailClienteB64 = Base64.encode(emailCliente);
+//                 firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID )            
+//                     .update({            
+//                         status:'atendimento', 
+//                         tecnico: dadosTecnico.nome,
+//                         tecnicoEmail: tecnicoEmail,
+//                     })
+//                 firebase.database().ref('/tecnico_chamados/' + tecnicoEmailB64 +'/'+chamadoUID)
+//                     .set({ tecnicoEmail, chamadoUID })
+                                            
+//             } else {
+//                 console.log('nao encontrou')
+//             }
+//         });
+    
+// }
+
+// export const encerrarChamado = (emailCliente, chamadoUID) => {
+//     const { currentUser} = firebase.auth();
+//     const tecnicoEmail = currentUser.email;
+//     let tecnicoEmailB64 = Base64.encode(tecnicoEmail);
+//     firebase.database().ref('/tecnicos/' + tecnicoEmailB64)
+//         .once('value')
+//         .then(snapshot => {
+//             if(snapshot.val()){
+//                 const dadosTecnico = _.first(_.values(snapshot.val()));
+//                 let emailClienteB64 = Base64.encode(emailCliente);
+//                 firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID)
+//                     .update({
+//                         status: 'resolvido',
+//                         tecnico: dadosTecnico.nome,
+//                         tecnicoEmail: tecnicoEmail,
+//                     })
+//                     firebase.database().ref('/tecnico_chamados/' + tecnicoEmailB64 +'/'+chamadoUID)
+//                         .set({ tecnicoEmail, chamadoUID })
+                                                
+//                 } else {
+//                     console.log('nao encontrou')
+//                 }
+//             });
+        
+// }

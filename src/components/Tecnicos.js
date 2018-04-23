@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button, Image, TextInput, ListView} from 'react-native';
+import { View, Text, Button, Image, TextInput, ListView, Linking, TouchableHighlight} from 'react-native';
 import { listaTecnicos } from '../actions/AppActions';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -21,10 +21,13 @@ class Tecnicos extends Component {
         this.dataSource = ds.cloneWithRows(tecnicos);
     }
     renderRow(tecnico) {
+        var url = 'https://api.whatsapp.com/send?phone='+tecnico.val.telefone+'&text=Olá,%20meu%20amigo! Essa mensagem foi enviada atraves do app da Solution Service! :)';
         return(
-            <View style={{ flex: 1, padding: 20, borderBottomWidth: 1, borderColor: "#ccc"}}>
+           <TouchableHighlight onPress={() => Linking.openURL(url).catch(err => console.error('An error occurred', err))} underlayColor="#fff">
+                <View style={{ flex: 1, padding: 20, borderBottomWidth: 1, borderColor: "#ccc"}}>
                     <Text style={{ fontSize: 20}}>{tecnico.val.nome}</Text>
                 </View>
+            </TouchableHighlight>
         )
     }
 

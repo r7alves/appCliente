@@ -1,0 +1,29 @@
+return dispatch => {
+        dispatch({ type: CARREGA_CHAMADOS});
+        const chamadosArray = [];
+
+        // firebase.database().ref('chamados_clientes/'+ clienteEmailB64)        
+        //     .once("value", snapshot => {      
+        //         const clientesChamadlo = _.map(snapshot.val(), (val, uid) => {
+                    
+        //             return { val, uid};
+        //         });
+        //         console.log(clientes)
+        //         for(let i=0; i< _.size(clientes); i++) {
+        //             console.log(clientes[i].uid)
+        //             firebase.database().ref('chamados/'+clientes[i].uid)
+        //                 .once("value", snapshot=> {
+        //                     chamadosArray.push(snapshot.val())
+        //                 })
+        //         }
+        //         console.log(chamadosArray)                
+        //         dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})
+        //     })
+        // End Query
+
+        var ref = firebase.database().ref("chamados");
+            ref.orderByChild("emailCliente").equalTo(currentUser.email).on("value", function(snapshot) {
+                console.log(snapshot.val());
+                dispatch({ type: LISTA_CHAMADOS_CLIENTES, payload:snapshot.val()})
+
+        });
