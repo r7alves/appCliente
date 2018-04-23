@@ -4,21 +4,12 @@ import {
     StyleSheet, Dimensions, 
     Button, Picker, Modal, TextInput, Alert} from 'react-native';
 import { 
-    atenderChamado, 
     atualizaChamado,
     excluirChamado,
-    modificaAddChamadoTitulo 
     } from '../actions/AppActions';
 import { connect } from 'react-redux';
 import b64 from 'base-64';
-import MapView from 'react-native-maps';
 
-const { width, height } = Dimensions.get('window');
-const SCREEN_HEIGHT = height;
-const SCREEN_WIDTH = width;
-const ASPEC_RADIO = width/height;
-const LATITUDE_DELTA = 0.0922
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPEC_RADIO;
 
 class DetalheChamado extends Component{
     
@@ -31,7 +22,7 @@ class DetalheChamado extends Component{
             status: this.props.chamadoDados.status,
             titulo: this.props.chamadoDados.titulo,
             descricao: this.props.chamadoDados.descricao,
-            descricao: this.props.chamadoDados.descricao,
+            colaborador: this.props.chamadoDados.usuarioChamado,
             prioridade: this.props.chamadoDados.prioridade,
         }
     }
@@ -39,7 +30,26 @@ class DetalheChamado extends Component{
     
     
 
-    
+    _atualizaChamado()
+    {
+        console.log('chamou atualiza interno' + this.props.chamadoDados.uid + this.state.titulo + this.state.descricao + this.state.prioridade + this.state.colaborador  )
+
+        if (this.state.titulo && this.state.descricao && this.state.colaborador) {
+            this.props.atualizaChamado(this.state.titulo, 
+                                        this.state.descricao, 
+                                        this.state.prioridade, 
+                                        this.state.colaborador, 
+                                        this.props.chamadoDados.uid,
+                                        )
+        } else if (!this.state.titulo) {
+            Alert.alert('Erro:', "Preencha o campo de Título")
+        }
+        else if (!this.state.descricao) {
+            Alert.alert('Erro:', 'Preencha o campo de Descrição')
+        } else {
+            Alert.alert('Erro:', "Preencha o campo de Quem será atendimento")
+        }
+    }
     openModal() {
         this.setState({modalVisible:true});
     }
@@ -52,11 +62,12 @@ class DetalheChamado extends Component{
         this.props.excluirChamado(this.props.chamadoDados.uid)
     }
 
-    //<Button style={{padding: 5,}} title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
+    //
     renderBtnAlterChamado() {
         if (this.props.chamadoDados.status == 'aberto') {
             return (
                 <View>
+                    <Button style={{padding: 5,}} title="Editar Chamado" color='#1E90FF' onPress={() =>this.openModal()}  />                
                     <Button title="Excluir Chamado" color='#DC143C' 
                         onPress={() => Alert.alert(
                                         'Confirmar Exclusão!',
@@ -107,19 +118,31 @@ class DetalheChamado extends Component{
                 <View style={{padding: 10}}>
                     {this.renderBtnAlterChamado()}           
                 </View>
-                <View>
+                <View >
                     <Modal
                         visible={this.state.modalVisible}
                         animationType={'slide'}
                         onRequestClose={()=> this.closeModal()}
                     >
-                    
                         <View style={{ flex: 1, justifyContent: 'center' }}>
-                            <Text>{this.props.chamadoDados.descricao}</Text>
-                            <Text>{this.props.chamadoDados.prioridade}</Text>
+                            <Text style={{ fontSize: 25, textAlign: 'center', paddingTop: 1 }}>Faça as alterações: </Text>
                            
                             <TextInput placeholder='Título' style={{ fontSize: 20, height: 45 }}
                                 onChangeText={(texto) => this.setState({titulo:texto})} value={this.state.titulo}/>
+                                
+                            <TextInput placeholder='Descrição' style={{ fontSize: 20, height: 45 }}
+                                onChangeText={(texto) => this.setState({descricao:texto})} value={this.state.descricao}/>
+                            
+                            <Picker
+                                selectedValue={this.state.prioridade}
+                                onValueChange={(itemValue, itemIndex) => this.setState({ prioridade: itemValue })}>
+                                {this
+                                    .items
+                                    .map((i, index) => (<Picker.Item key={index} label={i.label} value={i.value} />))}
+                            </Picker>
+                            
+                            <TextInput placeholder='Quem será atendido?' style={{ fontSize: 20, height: 45 }}
+                                onChangeText={(texto) => this.setState({colaborador:texto})} value={this.state.colaborador}/>
                                 
 
                         </View>
@@ -128,7 +151,7 @@ class DetalheChamado extends Component{
 
                         <View>
                             <Button title="Enviar" color='#1E90FF' onPress={() =>                     
-                            atualizaChamado(this.props.chamadoDados.email, this.props.uid)}  />            
+                            this._atualizaChamado()}  />            
                         </View>
                     </Modal>
                 </View>
@@ -137,12 +160,24 @@ class DetalheChamado extends Component{
             
         )
     }
+    items = [
+        {
+            label: 'Normal',
+            value: 'Normal'
+        }, {
+            label: 'Alta',
+            value: 'Alta'
+        }, {
+            label: 'Baixa',
+            value: 'Baixa'
+        }
+    ];
 }
 
 export default connect(null, { 
                                 atualizaChamado, 
                                 excluirChamado, 
-                                modificaAddChamadoTitulo
+                               
                                 })(DetalheChamado);
 
 const styles = StyleSheet.create({    

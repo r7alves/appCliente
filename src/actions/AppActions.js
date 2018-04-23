@@ -129,24 +129,26 @@ export const adicionaChamado = (titulo, descricao, prioridade, colaborador) => {
     }
 }
 
-export const atualizaChamado = (chamadoUID, titulo, descricao, prioridade, colaborador) => {
-    //const {currentUser} = firebase.auth();    
-    //const emailClienteB64 = Base64.encode(currentUser.email);
-    firebase.database().ref('/chamados/'+chamadoUID)
-
-    // MUDAR STATUS PARA VALOR CAPTURADO NA VIEW
-    .update({status: 'atendimento', tecnico: dadosTecnico.nome, tecnicoEmail: tecnicoEmail})     
+export const atualizaChamado = (titulo, descricao, prioridade, colaborador, chamadoUID) => {
+    console.log('chegou aqui')
+    if (prioridade == '') {
+        prioridade = 'Normal'
+    }
+    
+    return dispatch =>
+    {
+        firebase.database().ref('/chamados/'+chamadoUID)
+        .update({titulo: titulo, descricao: descricao, prioridade: prioridade, usuarioChamado: colaborador})
+            .then(() => Actions.principal() )
+        
+    }
 }
 
 export const excluirChamado = (chamadoUID) => {
-    // console.log(chamadoUID)
-    // const {currentUser} = firebase.auth();    
-    // const emailClienteB64 = Base64.encode(currentUser.email);
-
+    
     return dispatch => 
     {
         firebase.database().ref('/chamados/' + chamadoUID).remove()
-        //firebase.database().ref('/chamados_clientes/' + emailClienteB64 + '/' + chamadoUID).remove()
         Actions.principal()
     }    
 }
@@ -177,7 +179,8 @@ export const listaChamadosCliente = () => {
     } // End Dispatch
 }
 
-export const listaTecnicos = () => {    
+export const listaTecnicos = () => 
+{    
     return dispatch => {
         console.log('f')
         firebase.database().ref('/tecnicos/')
