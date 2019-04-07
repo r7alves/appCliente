@@ -21,7 +21,7 @@ import {
     MODIFICA_ADD_CHAMADO_PRIORIDADE,
     MODIFICA_ADD_CHAMADO_COLABORADOR,
     CARREGA_CHAMADOS
-} from './types';
+} from './types'; 
 
 
 //============Metodos para chamados cliente==========================

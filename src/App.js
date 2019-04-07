@@ -12,15 +12,17 @@ import reducers from './reducers';
 
 class App extends Component {
     componentWillMount() {
-      var config = {
-        apiKey: "AIzaSyCjxa5xSzDjOabh6NGALYh2qL5a9wCetd8",
-        authDomain: "appsolution-18.firebaseapp.com",
-        databaseURL: "https://appsolution-18.firebaseio.com",
-        projectId: "appsolution-18",
-        storageBucket: "",
-        messagingSenderId: "823197720625"
-      };
-      firebase.initializeApp(config);
+        var config = {
+            apiKey: "AIzaSyCjxa5xSzDjOabh6NGALYh2qL5a9wCetd8",
+            authDomain: "appsolution-18.firebaseapp.com",
+            databaseURL: "https://appsolution-18.firebaseio.com",
+            projectId: "appsolution-18",
+            storageBucket: "",
+            messagingSenderId: "823197720625"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(config);
+        }
     }
     render () {
         return (
